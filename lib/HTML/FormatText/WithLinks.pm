@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 sub new {
 
@@ -136,6 +136,7 @@ sub parse {
         return undef;
     }
 
+    $tree->eof();
     return $self->format( $tree );
 
 }
@@ -156,6 +157,7 @@ sub parse_file {
         $self->error("HTML::TreeBuilder problem" . $! ? ": $!" : '');
         return undef;
     }
+    $tree->eof();
 
     return $self->format( $tree );
 
