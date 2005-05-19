@@ -1,4 +1,4 @@
-# $Id: 08_custom_format.t,v 1.5 2004/01/12 17:44:22 struan Exp $
+# $Id: 08_custom_format.t 390 2004-01-12 17:44:22Z struan $
 
 use Test::More tests => 9;
 use HTML::FormatText::WithLinks;

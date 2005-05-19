@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 sub new {
 
@@ -14,7 +14,6 @@ sub new {
     my $class = ref( $proto ) || $proto;
     my $self  = $class->SUPER::new( @_ );
     $self->configure() unless @_;
-
 
     bless ( $self, $class );
     return $self;
@@ -35,7 +34,8 @@ sub configure {
     $self->{footnote} = '%n. %l';
     $self->{link_num_generator} = sub { return shift() + 1 };
 
-    foreach ( qw( before_link after_link footnote link_num_generator ) ) {
+    foreach ( qw( before_link after_link footnote link_num_generator 
+                  with_emphasis ) ) {
         $self->{ $_ } = $hash->{ $_ } if exists $hash->{ $_ };
         delete $hash->{ $_ };
     }
@@ -83,6 +83,30 @@ sub a_end {
     }
     $self->SUPER::a_end();
 
+}
+
+sub b_start {
+    my $self = shift;
+    $self->out( '_' ) if $self->{ with_emphasis };
+    $self->SUPER::b_start();
+}
+
+sub b_end {
+    my $self = shift;
+    $self->out( '_' ) if $self->{ with_emphasis };
+    $self->SUPER::b_end();
+}
+
+sub i_start {
+    my $self = shift;
+    $self->out( '/' ) if $self->{ with_emphasis };
+    $self->SUPER::i_start();
+}
+
+sub i_end {
+    my $self = shift;
+    $self->out( '/' ) if $self->{ with_emphasis };
+    $self->SUPER::i_end();
 }
 
 # print out our links
@@ -137,8 +161,11 @@ sub parse {
     }
 
     $tree->eof();
-    return $self->format( $tree );
+    my $return_text = $self->format( $tree );
 
+    $tree->delete;
+
+    return $return_text;
 }
 
 sub parse_file {
@@ -159,8 +186,11 @@ sub parse_file {
     }
     $tree->eof();
 
-    return $self->format( $tree );
+    my $return_text = $self->format( $tree );
 
+    $tree->delete;
+
+    return $return_text;
 }
 
 sub error {
@@ -274,6 +304,10 @@ If footnote is set to '', no footnotes will be printed.
 
 link_num_generator is a sub that returns the value to be printed for a 
 given link number. The internal store starts numbering at 0.
+
+=item with_emphasis
+
+If set to 1 then italicised text will be surrounded by / and bolded text by _.
 
 =back
 
