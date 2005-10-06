@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 sub new {
 
@@ -215,7 +215,7 @@ HTML::FormatText::WithLinks - HTML to text conversion with links as footnotes
 
 =head1 SYNOPSIS
 
-    use HTML::FormatText::WithLinks
+    use HTML::FormatText::WithLinks;
 
     my $f = HTML::FormatText::WithLinks->new();
 
