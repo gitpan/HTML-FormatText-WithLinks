@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 sub new {
 
@@ -115,7 +115,7 @@ sub i_end {
 sub html_end {
 
     my $self = shift;
-    if ( $self->{_links} and $self->{footnote} ) {
+    if ( $self->{_links} and @{$self->{_links}} and $self->{footnote} ) {
         $self->nl; $self->nl; # be tidy
         $self->goto_lm;
         for (0 .. $#{$self->{_links}}) {
@@ -141,8 +141,10 @@ sub _link_num {
 sub text {
 
     my ($self, $type, $num, $href) = @_;
-    $href = $self->{_links}->[$#{$self->{_links}}]
-            unless (defined $num and defined $href);
+    if ($self->{_links} and @{$self->{_links}}) {
+        $href = $self->{_links}->[$#{$self->{_links}}]
+                unless (defined $num and defined $href);
+    }
     $num = $self->_link_num($num);
     my $text = $self->{$type};
     $text =~ s/%n/$num/g;
