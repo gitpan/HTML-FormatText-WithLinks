@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 sub new {
 
@@ -36,10 +36,12 @@ sub configure {
 
     $self->{unique_links} = 0;
 
+    $self->{format_tables} = 0;
+
     $self->{_link_track} = {};
 
     foreach ( qw( before_link after_link footnote link_num_generator 
-                  with_emphasis unique_links ) ) {
+                  with_emphasis unique_links format_tables ) ) {
         $self->{ $_ } = $hash->{ $_ } if exists $hash->{ $_ };
         delete $hash->{ $_ };
     }
@@ -130,6 +132,54 @@ sub i_end {
     my $self = shift;
     $self->out( '/' ) if $self->{ with_emphasis };
     $self->SUPER::i_end();
+}
+
+sub td_start {
+    my $self = shift;
+    if ( $self->{ format_tables } ) {
+        return 1;
+    }
+    $self->SUPER::td_start(@_);
+}
+
+sub td_end {
+    my $self = shift;
+    if ( $self->{ format_tables } ) {
+        $self->collect( "\t" );
+        return 1;
+    }
+    $self->SUPER::td_end(@_);
+}
+
+sub th_start { 
+    my $self = shift;
+    if ( $self->{ format_tables } ) {
+        $self->out( '_' );
+        return 1;
+    }
+    $self->SUPER::th_start(@_);
+}
+
+sub th_end { 
+    my $self = shift;
+    if ( $self->{ format_tables } ) {
+        $self->out( '_' );
+        $self->collect( "\t" );
+        return 1;
+    }
+    $self->SUPER::th_end(@_);
+}
+
+sub tr_start {
+    1;
+}
+
+sub tr_end {
+    my $self = shift;
+    if ( $self->{ format_tables } ) {
+        $self->nl;
+    }
+    return 1;
 }
 
 # print out our links
