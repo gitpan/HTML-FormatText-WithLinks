@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 sub new {
 
@@ -36,12 +36,12 @@ sub configure {
 
     $self->{unique_links} = 0;
 
-    $self->{format_tables} = 0;
+    $self->{anchor_links} = 1;
 
     $self->{_link_track} = {};
 
     foreach ( qw( before_link after_link footnote link_num_generator 
-                  with_emphasis unique_links format_tables ) ) {
+                  with_emphasis unique_links anchor_links ) ) {
         $self->{ $_ } = $hash->{ $_ } if exists $hash->{ $_ };
         delete $hash->{ $_ };
     }
@@ -65,8 +65,11 @@ sub a_start {
     my $node = shift;
     # local urls are no use so we have to make them absolute
     my $href = $node->attr('href') || '';
+    if ($href && $self->{anchor_links} == 0 && $href =~ m/^#/o) {
+        $href = '';
+    }
     if ( $href ) {
-        if ($href !~ m#^http:|^mailto:#) {
+        if ($href !~ m#^https?:|^mailto:#o) {
             $href = URI::WithBase->new($href, $self->{base})->abs();
         }
         if ($self->{unique_links})
@@ -132,54 +135,6 @@ sub i_end {
     my $self = shift;
     $self->out( '/' ) if $self->{ with_emphasis };
     $self->SUPER::i_end();
-}
-
-sub td_start {
-    my $self = shift;
-    if ( $self->{ format_tables } ) {
-        return 1;
-    }
-    $self->SUPER::td_start(@_);
-}
-
-sub td_end {
-    my $self = shift;
-    if ( $self->{ format_tables } ) {
-        $self->collect( "\t" );
-        return 1;
-    }
-    $self->SUPER::td_end(@_);
-}
-
-sub th_start { 
-    my $self = shift;
-    if ( $self->{ format_tables } ) {
-        $self->out( '_' );
-        return 1;
-    }
-    $self->SUPER::th_start(@_);
-}
-
-sub th_end { 
-    my $self = shift;
-    if ( $self->{ format_tables } ) {
-        $self->out( '_' );
-        $self->collect( "\t" );
-        return 1;
-    }
-    $self->SUPER::th_end(@_);
-}
-
-sub tr_start {
-    1;
-}
-
-sub tr_end {
-    my $self = shift;
-    if ( $self->{ format_tables } ) {
-        $self->nl;
-    }
-    return 1;
 }
 
 # print out our links
@@ -256,6 +211,9 @@ sub _parse {
 
     my $self = shift;
     my $tree = shift;
+
+    $self->{_link_track} = {};
+    $self->{_links} = [];
 
     unless ( $tree ) {
         $self->error( "HTML::TreeBuilder problem" . ( $! ? ": $!" : '' ) );
@@ -391,6 +349,11 @@ If set to 1 then italicised text will be surrounded by / and bolded text by _.
 
 If set to 1 then will only generate 1 footnote per unique URI as oppose to the default behaviour which is to generate a footnote per URI.
 
+=item anchor_links
+
+If set to 0 then links pointing to local anchors will be skipped.
+The default behaviour is to include all links.
+
 =back
 
 =head2 parse
@@ -436,6 +399,9 @@ L<http://www.exo.org.uk/code/>
 
 Ian Malpass E<lt>ian@indecorous.comE<gt> was responsible for the custom 
 formatting bits and the nudge to release the code.
+
+Simon Dassow E<lt>janus@errornet.de<gt> for the anchor_links option plus 
+a few bugfixes and optimsations
 
 =head1 COPYRIGHT
 
