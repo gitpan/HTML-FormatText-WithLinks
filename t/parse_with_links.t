@@ -1,4 +1,4 @@
-# $Id: 03_parse_with_links.t 383 2004-01-12 17:09:27Z struan $
+# $Id$
 
 use Test::More tests => 3;
 use HTML::FormatText::WithLinks;

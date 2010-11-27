@@ -1,4 +1,4 @@
-# $Id: 01load.t 449 2005-05-23 18:53:36Z struan $
+# $Id$
 
 use Test::More tests => 5;
 

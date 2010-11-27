@@ -1,4 +1,4 @@
-# $Id: 02_basic_parse.t 383 2004-01-12 17:09:27Z struan $
+# $Id$
 
 use Test::More tests => 5;
 use HTML::FormatText::WithLinks;

@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 sub new {
 
@@ -29,6 +29,9 @@ sub configure {
     delete $hash->{base};
     $self->{base} =~ s#(.*?)/[^/]*$#$1/# if $self->{base};
 
+    $self->{doc_overrides_base} = $hash->{doc_overrides_base};
+    delete $hash->{doc_overrides_base};
+
     $self->{before_link} = '[%n]';
     $self->{after_link} = '';
     $self->{footnote} = '%n. %l';
@@ -38,10 +41,12 @@ sub configure {
 
     $self->{anchor_links} = 1;
 
+    $self->{skip_linked_urls} = 0;
+
     $self->{_link_track} = {};
 
     foreach ( qw( before_link after_link footnote link_num_generator 
-                  with_emphasis unique_links anchor_links ) ) {
+                  with_emphasis unique_links anchor_links skip_linked_urls ) ) {
         $self->{ $_ } = $hash->{ $_ } if exists $hash->{ $_ };
         delete $hash->{ $_ };
     }
@@ -59,6 +64,38 @@ sub textflow {
     $self->SUPER::textflow(@_);
 }
 
+sub head_start {
+    my ($self) = @_;
+    $self->SUPER::head_start();
+
+    # we don't care about what the documens says it's base is
+    if ( $self->{base} and not $self->{doc_overrides_base} ) {
+        return 0;
+    }
+
+    # descend into <head> for possible <base> there, even if superclass not
+    # interested (as of HTML::FormatText 2.04 it's not)
+    return 1;
+}
+
+# <base> is supposed to be inside <head>, but no need to demand that.
+# "lynx -source" sticks a <base> at the very start of the document, before
+# even <html>, so accepting <base> anywhere lets that work.
+sub base_start {
+    my ($self, $node) = @_;
+    if (my $href = $node->attr('href')) {
+        $self->{base} = $href;
+    }
+
+    # allow for no superclass base_start() in HTML::FormatText 2.04
+    if (! HTML::FormatText->can('base_start')) {
+        return 0;
+    }
+
+    # chain up if it exists in the future
+    return $self->SUPER::base_start();
+}
+
 sub a_start {
 
     my $self = shift;
@@ -66,6 +103,9 @@ sub a_start {
     # local urls are no use so we have to make them absolute
     my $href = $node->attr('href') || '';
     if ($href && $self->{anchor_links} == 0 && $href =~ m/^#/o) {
+        $href = '';
+    }
+    elsif ($href and $self->{skip_linked_urls} and $href eq $node->as_text) {
         $href = '';
     }
     if ( $href ) {
@@ -96,18 +136,20 @@ sub a_end {
     my $self = shift;
     my $node = shift;
     my $text;
-    if ($self->{unique_links})
-    {
-        my $href = $node->attr('href');
-        $text = $self->text('after_link', $self->{_link_track}->{$href}, $href);
-    } else {
-        $text = $self->text('after_link');
-    }
+    unless ($self->{skip_linked_urls} and $node->attr('href') eq $node->as_text) {
+        if ($self->{unique_links})
+        {
+            my $href = $node->attr('href');
+            $text = $self->text('after_link', $self->{_link_track}->{$href}, $href);
+        } else {
+            $text = $self->text('after_link');
+        }
 # If we're just dealing with a fragment of HTML, with a link at the
 # end, we get a space before the first footnote link if we do 
 # $self->out( '' )
-    if ($text ne '') {
-        $self->out( $text );
+        if ($text ne '') {
+            $self->out( $text );
+        }
     }
     $self->SUPER::a_end();
 
@@ -321,6 +363,12 @@ Returns a new instance. It accepts all the options of HTML::FormatText plus
 a base option. This should be set to a URI which will be used to turn any 
 relative URIs on the HTML to absolute ones.
 
+=item doc_overrides_base
+
+If a base element is found in the document and it has an href attribute
+then setting doc_overrides_base to true will cause the document's base
+to be used. This defaults to false.
+
 =item before_link (default: '[%n]')
 
 =item after_link (default: '')
@@ -352,6 +400,11 @@ If set to 1 then will only generate 1 footnote per unique URI as oppose to the d
 =item anchor_links
 
 If set to 0 then links pointing to local anchors will be skipped.
+The default behaviour is to include all links.
+
+=item skip_linked_urls
+
+If set to 1, then links where the text equals the href value will be skipped.
 The default behaviour is to include all links.
 
 =back
@@ -401,11 +454,17 @@ Ian Malpass E<lt>ian@indecorous.comE<gt> was responsible for the custom
 formatting bits and the nudge to release the code.
 
 Simon Dassow E<lt>janus@errornet.de<gt> for the anchor_links option plus 
-a few bugfixes and optimsations
+a few bugfixes and optimisations
+
+Kevin Ryde for the code for pulling the base out the document.
+
+Thomas Sibley E<lt>trs@bestpractical.comE<gt> for the skip linked urls code.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2003 Struan Donald and Ian Malpass. All rights reserved.
+Copyright (C) 2003-2010 Struan Donald and Ian Malpass. All rights reserved.
+
+=head1 LICENSE
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
