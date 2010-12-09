@@ -4,7 +4,7 @@ author:
   - 'Struan Donald. E<lt>struan@cpan.orgE<gt>'
   - "Ian Malpass E<lt>ian@indecorous.comE<gt> was responsible for the custom \nformatting bits and the nudge to release the code."
   - "Simon Dassow E<lt>janus@errornet.de<gt> for the anchor_links option plus \na few bugfixes and optimisations"
-  - 'Thomas Sibley E<lt>trs@bestpractical.comE<gt> for the skip linked urls code.'
+  - 'Thomas Sibley E<lt>trs@bestpractical.comE<gt> patches for skipping links that are their urls and to change the delimiters for bold and italic text..'
 build_requires:
   Test::More: 0
 configure_requires:
@@ -18,11 +18,11 @@ name: HTML-FormatText-WithLinks
 provides:
   HTML::FormatText::WithLinks:
     file: lib/HTML/FormatText/WithLinks.pm
-    version: 0.12
+    version: 0.13
 requires:
   HTML::FormatText: 2
   HTML::TreeBuilder: 0
   URI::WithBase: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.12
+version: 0.13
