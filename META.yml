@@ -18,11 +18,11 @@ name: HTML-FormatText-WithLinks
 provides:
   HTML::FormatText::WithLinks:
     file: lib/HTML/FormatText/WithLinks.pm
-    version: 0.13
+    version: 0.14
 requires:
   HTML::FormatText: 2
   HTML::TreeBuilder: 0
   URI::WithBase: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.13
+version: 0.14
