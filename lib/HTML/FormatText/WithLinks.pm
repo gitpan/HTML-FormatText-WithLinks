@@ -6,7 +6,7 @@ use HTML::TreeBuilder;
 use base qw(HTML::FormatText);
 use vars qw($VERSION);
 
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 sub new {
 
@@ -72,7 +72,7 @@ sub head_start {
     my ($self) = @_;
     $self->SUPER::head_start();
 
-    # we don't care about what the documens says it's base is
+    # we don't care about what the documents says it's base is
     if ( $self->{base} and not $self->{doc_overrides_base} ) {
         return 0;
     }
@@ -421,7 +421,7 @@ The default behaviour is to include all links.
 
 Takes some HTML and returns it as text. Returns undef on error.
 
-Will also return undef if you don't pass it undef. Returns an empty 
+Will also return undef if you pass it undef. Returns an empty
 string if passed an empty string.
 
 =head2 parse_file
@@ -435,7 +435,7 @@ Returns undef on error.
 
     $f->error();
 
-Returns the last error that occured. In practice this is likely to be 
+Returns the last error that occurred. In practice this is likely to be 
 either a warning that parse_file couldn't find the file or that
 HTML::TreeBuilder failed.
 
@@ -465,6 +465,11 @@ a few bugfixes and optimisations
 Kevin Ryde for the code for pulling the base out the document.
 
 Thomas Sibley E<lt>trs@bestpractical.comE<gt> patches for skipping links that are their urls and to change the delimiters for bold and italic text..
+
+=head1 SOURCE CODE
+
+The source code for this module is hosted on GitHub
+L<http://github.com/struan/html-formattext-withlinks>
 
 =head1 COPYRIGHT
 

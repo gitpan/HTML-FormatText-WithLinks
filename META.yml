@@ -8,8 +8,9 @@ author:
 build_requires:
   Test::More: 0
 configure_requires:
-  Module::Build: 0.36
-generated_by: 'Module::Build version 0.3603'
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.112150'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -18,11 +19,12 @@ name: HTML-FormatText-WithLinks
 provides:
   HTML::FormatText::WithLinks:
     file: lib/HTML/FormatText/WithLinks.pm
-    version: 0.14
+    version: 0.15
 requires:
   HTML::FormatText: 2
   HTML::TreeBuilder: 0
   URI::WithBase: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.14
+  repository: https://github.com/struan/html-formattext-withlinks
+version: 0.15

@@ -29,3 +29,4 @@ t/podcover.t
 t/skip_linked_urls.t
 t/treebuilder_problem.t
 t/with_emphasis.t
+META.json
